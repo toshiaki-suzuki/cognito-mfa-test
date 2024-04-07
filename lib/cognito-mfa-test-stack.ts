@@ -54,7 +54,14 @@ export class CognitoMfaTestStack extends cdk.Stack {
         emailSubject: 'Your verification code',
         emailBody: 'Your verification code is {####}',
         emailStyle: cognito.VerificationEmailStyle.CODE,
-      }
+      },
+      // MFAの設定
+      mfa: cognito.Mfa.REQUIRED,
+      // 使用可能なMFAの種類を指定
+      mfaSecondFactor: {
+        sms: true,
+        otp: true
+      },
     });
   }
 }
