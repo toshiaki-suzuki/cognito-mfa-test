@@ -1,6 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 export class CognitoMfaTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -10,15 +12,31 @@ export class CognitoMfaTestStack extends cdk.Stack {
     // VPC =========================================================
     const vpc = new ec2.Vpc(this, 'Vpc', {
       vpcName: 'cognito-mfa-test-vpc',
-      maxAzs: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'cognito-mfa-test-pub',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-      ],
+      maxAzs: 2,
+      cidr: '10.0.0.0/16',
     });
+
+    // ALB =========================================================
+    const alb = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
+      vpc,
+      internetFacing: true,
+    });
+
+    const listener = alb.addListener('Listener', {
+      port: 80,
+      open: true,
+    });
+
+   // ダミーターゲットの作成
+    const dummyTarget = new elbv2.ApplicationTargetGroup(this, 'DummyTarget', {
+      vpc,
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      port: 80,
+    });
+    listener.addTargetGroups('DummyTargetGroup', {
+      targetGroups: [dummyTarget],
+    });
+
 
     // Cognito =========================================================
     const userpool = new cognito.UserPool(this, 'mfaTestUserPool', {
