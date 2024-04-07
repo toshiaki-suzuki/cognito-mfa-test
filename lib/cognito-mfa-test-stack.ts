@@ -6,6 +6,21 @@ export class CognitoMfaTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+
+    // VPC =========================================================
+    const vpc = new ec2.Vpc(this, 'Vpc', {
+      vpcName: 'cognito-mfa-test-vpc',
+      maxAzs: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'cognito-mfa-test-pub',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+      ],
+    });
+
+    // Cognito =========================================================
     const userpool = new cognito.UserPool(this, 'mfaTestUserPool', {
       userPoolName: 'mfa-test-userpool',
       // パスワードポリシー
