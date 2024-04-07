@@ -6,7 +6,7 @@ export class CognitoMfaTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    new cognito.UserPool(this, 'mfaTestUserPool', {
+    const userpool = new cognito.UserPool(this, 'mfaTestUserPool', {
       userPoolName: 'mfa-test-userpool',
       // パスワードポリシー
       passwordPolicy: {
@@ -61,6 +61,20 @@ export class CognitoMfaTestStack extends cdk.Stack {
       mfaSecondFactor: {
         sms: true,
         otp: true
+      },
+    });
+
+    const client = userpool.addClient('mfa-test-app-client', {
+      // アプリケーションクライアント名
+      userPoolClientName: 'mfa-test-app-client',
+      // クライアントシークレットを生成するかどうか
+      generateSecret: false,
+      // クライアントが使用する認証フロー
+      authFlows: {
+        adminUserPassword: false,
+        custom: true,
+        userPassword: false,
+        userSrp: true,
       },
     });
   }
