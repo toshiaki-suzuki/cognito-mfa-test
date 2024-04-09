@@ -109,6 +109,20 @@ export class CognitoMfaTestStack extends cdk.Stack {
         userPassword: false,
         userSrp: true,
       },
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+        },
+        scopes: [
+          cognito.OAuthScope.OPENID,
+        ],
+        callbackUrls: [
+          `https://${alb.loadBalancerDnsName}/auth2/idpresponse`
+        ],
+        logoutUrls: [
+          `https://${alb.loadBalancerDnsName}/dummy`
+        ],
+      },
     });
   }
 }
