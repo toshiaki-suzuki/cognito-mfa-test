@@ -124,5 +124,11 @@ export class CognitoMfaTestStack extends cdk.Stack {
         ],
       },
     });
+
+    const domain = userpool.addDomain('Domain', {
+      cognitoDomain: {
+        domainPrefix: `mfa-test-${this.account}-${this.region}`,
+      },
+    });
   }
 }
